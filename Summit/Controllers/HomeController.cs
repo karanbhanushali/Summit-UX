@@ -1,6 +1,11 @@
-﻿using System;
+﻿using Firebase.Storage;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 
@@ -474,6 +479,116 @@ namespace Summit.Controllers
             return Json(LL);
         }
 
+        private static Random random = new Random();
+        public static string RandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        [HttpPost]
+        public void Upload(HttpPostedFileBase file)
+        {
+            ViewBag.Title = "Upload";
+
+            if (file.ContentLength > 0)
+            {
+                string _FileName = Path.GetFileName(file.FileName);
+                string _path = Path.Combine(Server.MapPath("~/UploadedFiles"), _FileName);
+                file.SaveAs(_path);
+                uploadImage(_path);
+                ViewBag.Message = "File Uploaded Successfully!!";
+
+            }
+
+
+        }
+
+
+        [HttpPost]
+        public string uploadImage(string file)
+        {
+
+
+            try
+            {
+                var stream = System.IO.File.Open(file, FileMode.Open);
+                Random random = new Random();
+                int number = random.Next(50);
+                var name = RandomString(number);
+                name = name + ".png";
+
+                var task = new FirebaseStorage("annualsumm.appspot.com")
+                 .Child("data")
+                 .Child("summit")
+                 .Child(name)
+                 .PutAsync(stream);
+
+                task.Progress.ProgressChanged += (s, e) => Console.WriteLine($"Progress: {e.Percentage} %");
+                var downloadUrl = task;
+                var targetURL = task.TargetUrl; //save this somewhere and use it to get the download link
+                var targetURL2 = targetURL;
+                return targetURL2;
+            }
+            catch (Exception ex)
+            {
+                return ex.StackTrace;
+            }
+
+
+
+        }
+
+
+        public void getDownloadURL(string uri = "https://firebasestorage.googleapis.com/v0/b/annualsumm.appspot.com/o?name=data%2Fsummit%2FHVU9JSYQY3.png")
+        {
+            string output;
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
+            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            using (Stream stream = response.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                output = reader.ReadToEnd();
+            }
+            JObject json = JObject.Parse(output);
+            string name = (string)json.SelectToken("name");
+            name = name.Replace("/", "%2F");
+            string token = (string)json.SelectToken("downloadTokens");
+
+
+            string downloadURL = "https://firebasestorage.googleapis.com/v0/b/annualsumm.appspot.com/o/" + name + "?alt=media&token=" + token;
+
+
+        }
+
+
+        public void feedback(string feedback,string sessionName,string rating)
+        {
+             
+            string country = "Austin";  // add the selected country here
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(new
+            {
+                session = sessionName,
+                review = feedback,
+                rating = rating
+            });
+            var request = WebRequest.CreateHttp("https://annualsumm.firebaseio.com/Feedback/" + country + "/"+sessionName+".json");
+            request.Method = "POST";
+            request.ContentType = "application/json";
+            var buffer = Encoding.UTF8.GetBytes(json);
+            request.ContentLength = buffer.Length;
+            request.GetRequestStream().Write(buffer, 0, buffer.Length);
+            var response = request.GetResponse();
+            json = (new StreamReader(response.GetResponseStream())).ReadToEnd();
+
+            Index("","");
+            
+
+        }
     }
 
 

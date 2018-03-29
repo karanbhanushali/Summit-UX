@@ -442,44 +442,117 @@ var program = '@ViewBag.Program'
                         <h2>SHARE US YOUR FEEDBACK</h2>
                         <p>Don't forget to give your feedback!</p>
                     </div>
-                    <form id="contactForm" class="subscribe-form" method="POST">
-                        <div class="form-group">
+
+
+
+                    @using (Html.BeginForm("feedback", "Home", FormMethod.Post, new { id="some" }))
+    {
+
+
+
+                <form id="contactForm" class="subscribe-form" method="POST">
+                    <div class="form-group">
+                        <div class="col-md-10">
                             <label for="sessionName" class="sr-only">Session Name</label>
-                            <select id="sessionName" class="form-control">
+                            <select id="sessionName" name="sessionName" class="form-control">
                                 <option disabled selected="selected">SELECT A SESSION</option>
                                 @foreach (string session in ViewBag.Sessions)
-                                {
-                                    <option value="@session">@session</option>
-                                }
+        {
+                        <option value="@session">@session</option>
+}
+
+
+
                             </select>
+
                         </div>
-                        <div class="form-group">
-                            <label for="feedback" class="sr-only">Feedback</label>
-                            <textarea class="form-control" required="" id="feedback" name="email" placeholder="Enter your Feedback"></textarea>
+                        <div class="col-md-2">
+
+                            <label for="rating" class="sr-only">Session Name</label>
+                            <select id="rating" name="rating" class="form-control">
+                                <option disabled selected="selected">Rating</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+
+
+
+
+                            </select>
+
+
                         </div>
-                        <button type="submit" class="btn btn-primary btn-sm" onclick="submitFeedback()">Submit Feedback</button>
-                    </form>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="section-title" style="text-align:left">
-                        <h3>Share your pictures collection</h3>
-                        <p>We can make a repository and share it with you all!</p>
                     </div>
                     <div class="form-group">
-                        <div class="input-group">
-                            <span class="input-group-btn">
-                                <span class="btn btn-primary btn-file">
-                                    Browse… <input type="file" id="imgInp">
-                                </span>
-                            </span>
-                            <input type="text" class="form-control" readonly style="width:85%;background-color:#fff">
-                            <button type="submit" class="btn btn-primary btn-sm" style="float:right" onclick="readURL()">Upload</button>
+                        <div class="col-md-12">
+                            <label for="feedback" class="sr-only">Feedback</label>
+                            <textarea class="form-control" required="" id="feedback" name="feedback" placeholder="Enter your Feedback"></textarea>
                         </div>
-                    </div>
+                        </div>
+                    <button type="submit" class="btn btn-primary btn-sm" onclick="submitFeedback()">Submit Feedback</button>
+                </form>
+                
+                    }
+
+
+
                 </div>
             </div>
+
+
+            @*<div class="row">
+                    <div class="col-md-12">
+                        <div class="section-title" style="text-align:left">
+                            <h3>Share your pictures collection</h3>
+                            <p>We can make a repository and share it with you all!</p>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <span class="btn btn-primary btn-file">
+                                        Browse… <input type="file" id="imgInp">
+                                    </span>
+                                </span>
+                                <input type="text" class="form-control" readonly style="width:85%;background-color:#fff">
+                                <button type="submit" class="btn btn-primary btn-sm" style="float:right" onclick="readURL()">Upload</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>*@
+
+
+            @using (Html.BeginForm("Upload", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+
+
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="section-title" style="text-align:left">
+                            <h3>Share your pictures collection</h3>
+                            <p>We can make a repository and share it with you all!</p>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <span class="btn btn-primary btn-file">
+                                        Browse… <input type="file" id="file" name="file" value="" onchange="readURL(this);">
+                                    </span>
+                                </span>
+                                <input type="text" class="form-control" readonly style="width:85%">
+                                <button type="submit" class="btn btn-primary btn-sm" style="float:right">Upload</button>
+                            </div>
+                        </div>
+                        <img id="blah" src="http://placehold.it/180" alt="your image" />
+                    </div>
+                </div>
+
+            }
+
+
         </div>
     </section>
     <section class="section-wrapper">
@@ -610,3 +683,7 @@ var program = '@ViewBag.Program'
         </div>
     </div>
 </div>
+<script src="~/Scripts/image_preview.js"></script>
+
+
+<link href="~/Content/image_preview.css" rel="stylesheet">
